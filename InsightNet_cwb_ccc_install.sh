@@ -9,7 +9,7 @@ read -p 'Enter the path of InsightsNet_CWB_CCC: ' file_path
 
 cd ${file_path}/cwb-ccc
 
-python3 -m pip install cwb-ccc
+python3 -m pip install cwb-ccc==0.11.8
 
 echo "-------------- Your Python CWB-CCC Installation is Susscessful. --------------"
 echo "*****************************************************************************"
