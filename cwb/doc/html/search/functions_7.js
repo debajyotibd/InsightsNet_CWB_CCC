@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['get_3415',['GET',['../regex2dfa_8c.html#abb03850a8ac96371276164681d7f9865',1,'regex2dfa.c']]],
+  ['get_5falignment_3416',['get_alignment',['../cdaccess_8c.html#aa4105b1b22bb654232c01df338fadd26',1,'cdaccess.c']]],
+  ['get_5fattribute_5fhandle_3417',['get_attribute_handle',['../cwb-decode_8c.html#a7165afff2e4f241a2fc82fe3ee78328f',1,'cwb-decode.c']]],
+  ['get_5fb_5foperator_5fname_3418',['get_b_operator_name',['../eval_8c.html#a45ead2bdd91d766822f9bb670fc65415',1,'eval.c']]],
+  ['get_5fbit_3419',['get_bit',['../bitfields_8c.html#ad210c275b3c58c3b52a48803326ddc54',1,'get_bit(Bitfield bitfield, int element):&#160;bitfields.c'],['../bitfields_8h.html#ad210c275b3c58c3b52a48803326ddc54',1,'get_bit(Bitfield bitfield, int element):&#160;bitfields.c']]],
+  ['get_5fcolour_5fescape_3420',['get_colour_escape',['../ascii-print_8c.html#ab7d4b27322a70841ed8f3b237b701d5b',1,'get_colour_escape(char colour, int foreground):&#160;ascii-print.c'],['../ascii-print_8h.html#ab7d4b27322a70841ed8f3b237b701d5b',1,'get_colour_escape(char colour, int foreground):&#160;ascii-print.c']]],
+  ['get_5fcorpus_5fpositions_3421',['get_corpus_positions',['../eval_8c.html#a816223d6891b692aef6eca2da1733440',1,'eval.c']]],
+  ['get_5fextended_5falignment_3422',['get_extended_alignment',['../cdaccess_8c.html#a88e4b39c845c0d657e51b2c2361c925b',1,'cdaccess.c']]],
+  ['get_5ffulllocalpath_3423',['get_fulllocalpath',['../corpmanag_8c.html#a5e91735fe599faa9c613f37d326b729f',1,'corpmanag.c']]],
+  ['get_5ffvector_3424',['get_fvector',['../feature__maps_8c.html#a9e72d66c846aa1354e001d1d0c00aee5',1,'get_fvector(FMS fms):&#160;feature_maps.c'],['../feature__maps_8h.html#a9e72d66c846aa1354e001d1d0c00aee5',1,'get_fvector(FMS fms):&#160;feature_maps.c']]],
+  ['get_5fgroup_5fid_3425',['get_group_id',['../groups_8c.html#afa226154c457635c81d523059341bab3',1,'groups.c']]],
+  ['get_5flabel_5freferenced_5fposition_3426',['get_label_referenced_position',['../eval_8c.html#aacef4909ea4676aac6a935fbc5af41d2',1,'eval.c']]],
+  ['get_5fleaf_5fvalue_3427',['get_leaf_value',['../eval_8c.html#a4860bf781d99238f58d189415f35bf15',1,'eval.c']]],
+  ['get_5fmatched_5fcorpus_5fpositions_3428',['get_matched_corpus_positions',['../eval_8c.html#a582fe551db144d11299193cac121847f',1,'eval.c']]],
+  ['get_5fnext_5frange_3429',['get_next_range',['../cwb-scan-corpus_8c.html#a0bd5ce6ea72cb4064addfcc9a02ac3b5',1,'cwb-scan-corpus.c']]],
+  ['get_5fprevious_5fmark_3430',['get_previous_mark',['../cdaccess_8c.html#afd4c658f53997dcda5a265cbaf384808',1,'cdaccess.c']]],
+  ['get_5freftab_3431',['get_reftab',['../symtab_8c.html#a626f8764b931a695b6f1b93c029c5026',1,'get_reftab(RefTab rt, int index, int cpos):&#160;symtab.c'],['../symtab_8h.html#a626f8764b931a695b6f1b93c029c5026',1,'get_reftab(RefTab rt, int index, int cpos):&#160;symtab.c']]],
+  ['get_5fscreen_5fescapes_3432',['get_screen_escapes',['../ascii-print_8c.html#a3cc5d014e32e7292d25cd6477d62a4a9',1,'ascii-print.c']]],
+  ['get_5ftypeface_5fescape_3433',['get_typeface_escape',['../ascii-print_8c.html#a88cf83a0242fafe5c51d00b7d93e0ff1',1,'get_typeface_escape(char typeface):&#160;ascii-print.c'],['../ascii-print_8h.html#a88cf83a0242fafe5c51d00b7d93e0ff1',1,'get_typeface_escape(char typeface):&#160;ascii-print.c']]],
+  ['getsystemcorpus_3434',['GetSystemCorpus',['../corpmanag_8c.html#a590b8ef1508c4f273fd7bd00c691c1a6',1,'corpmanag.c']]],
+  ['getvariableitems_3435',['GetVariableItems',['../variables_8c.html#a2d9b75bc6795dc3ee9da28f948ccb9d7',1,'GetVariableItems(Variable v, Corpus *corpus, Attribute *attribute, int *nr_items):&#160;variables.c'],['../variables_8h.html#a2d9b75bc6795dc3ee9da28f948ccb9d7',1,'GetVariableItems(Variable v, Corpus *corpus, Attribute *attribute, int *nr_items):&#160;variables.c']]],
+  ['getvariablestrings_3436',['GetVariableStrings',['../variables_8c.html#ae4d0229163e993c38f59291bf8343752',1,'GetVariableStrings(Variable v, int *nr_items):&#160;variables.c'],['../variables_8h.html#ae4d0229163e993c38f59291bf8343752',1,'GetVariableStrings(Variable v, int *nr_items):&#160;variables.c']]],
+  ['group2compare_3437',['group2compare',['../ranges_8c.html#a895a8f15cd410712dcf51984a017b9ea',1,'ranges.c']]],
+  ['group_5fid2str_3438',['Group_id2str',['../groups_8c.html#a97e1f07f9ab179c1139a3f91a06278c8',1,'Group_id2str(Group *group, int id, int target):&#160;groups.c'],['../groups_8h.html#abd7c37da6c4272c5556878064ff87253',1,'Group_id2str(Group *group, int i, int target):&#160;groups.c']]]
+];

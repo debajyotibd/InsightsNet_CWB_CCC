@@ -1,0 +1,38 @@
+##   -*-Makefile-*-
+## 
+##  IMS Open Corpus Workbench (CWB)
+##  Copyright (C) 1993-2006 by IMS, University of Stuttgart
+##  Copyright (C) 2007-     by the respective contributers (see file AUTHORS)
+## 
+##  This program is free software; you can redistribute it and/or modify it
+##  under the terms of the GNU General Public License as published by the
+##  Free Software Foundation; either version 2, or (at your option) any later
+##  version.
+## 
+##  This program is distributed in the hope that it will be useful, but
+##  WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+##  Public License for more details (in the file "COPYING", or available via
+##  WWW at http://www.gnu.org/copyleft/gpl.html).
+
+##
+##  SITE-SPECIFIC CONFIGURATION FILE: binary release for Debian .deb packaging
+##
+
+## Inherits from configuration for binary releases on Linux
+include $(TOP)/config/site/linux-release
+
+## Temporary installation prefix for Debian, i.e. the packaging root
+PREFIX = $(TOP)/fakeroot/usr
+## Final installation prefix on the system
+FINALPREFIX = /usr
+
+## but we must ensure that the default registry points to the final install location
+DEFAULT_REGISTRY = /usr/local/share/cwb/registry
+
+## For Debian packaging, i686 is not a valid architecture label, even though `uname -m` supplies it.
+## Instead, i386 MEANS i686. So, we convert i686 to i386 here, so things will work if someone 
+## makes a .deb on a 32-bit Linux box (why anyone would want to is beyond my ken though!)
+ifeq ($(RELEASE_ARCH),i686)
+  RELEASE_ARCH := i386
+endif

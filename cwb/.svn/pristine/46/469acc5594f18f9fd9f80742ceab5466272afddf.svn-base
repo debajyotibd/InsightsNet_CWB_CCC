@@ -1,0 +1,45 @@
+
+        IMS Open Corpus Workbench (CWB)
+        Release 3.5 (PRE-RELEASE)
+
+        ===========================
+        SOURCE CODE BUNDLE MANIFEST
+        ===========================
+
+This distribution contains the following 
+
+Makefile                top-level makefile
+config.mk               makefile configuration
+definitions.mk          standard settings and definitions for make system
+
+README                  the usual open source "boilerplate"
+MANIFEST                this file
+INSTALL                 instructions on compiling & installing
+INSTALL-MACOS           supplement to INSTALL on MacOS-specific matters
+INSTALL-WIN             supplement to INSTALL on Windows-specific matters
+COPYING                 licence info for CWB and prerequisite libraries
+CHANGES                 change log
+AUTHORS                 info on who wrote CWB, copyright, etc. 
+
+build/                  empty directory, target location for release build
+
+config/                 platform and site configuration files 
+  config/platform/        compiler flags and settings for various platforms
+  config/site/            site-specific settings (installation paths etc.)
+
+doc/                    some technical documentation
+
+instutils/              utilities for installing and binary packages
+  instutils/install.sh    a GNU-compatible install program (shell script)
+
+install-scripts/        shell scripts that automate building/installing for
+                        common systems
+                        
+packaging/              files required for building deb/rpm/homebrew releases
+
+cl/                     corpus library (CL) source code
+cqp/                    corpus query processor (CQP) source code
+CQi/                    cqpserver source code (inc client-server interface CQi)
+utils/                  source code of command-line utilities
+
+man/                    manpages for CQP and the command-line utilities

@@ -1,0 +1,73 @@
+##   -*-Makefile-*-
+## 
+##  IMS Open Corpus Workbench (CWB)
+##  Copyright (C) 1993-2006 by IMS, University of Stuttgart
+##  Copyright (C) 2007-     by the respective contributers (see file AUTHORS)
+## 
+##  This program is free software; you can redistribute it and/or modify it
+##  under the terms of the GNU General Public License as published by the
+##  Free Software Foundation; either version 2, or (at your option) any later
+##  version.
+## 
+##  This program is distributed in the hope that it will be useful, but
+##  WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+##  Public License for more details (in the file "COPYING", or available via
+##  WWW at http://www.gnu.org/copyleft/gpl.html).
+
+##
+##  PLATFORM CONFIGURATION FILE:
+##    Self-contained binary release package for MacOS (Intel 64-bit) with 
+##    prerequisite libraries statically linked into "libcl.dylib".  Suitable
+##    versions of the libraries (for MacOS >= 10.13) must be marshalled into
+##    assets/darwin-x86_64/ before compilation.  The resulting package should
+##    be compatible with all MacOS version >= 10.13 (High Sierra).
+##
+
+
+## Inherits from basic Darwin configuration
+include $(TOP)/config/platform/darwin
+
+## Make sure that Apple's gcc is used (not e.g. a fink-installed version)
+CC = /usr/bin/gcc
+
+## Make sure we're compatible with most current x86 CPUs, but optimise for Core i7.
+## We also want the binary package to work on older MacOS versions than the one it
+## was built in, but this depends on the prerequisite libraries marshalled in assets/.
+## With libraries from CRAN, we can achieve compatibility with MacOS 10.13 (High Sierra):
+##    -mmacosx-version-min=10.13
+## To select a suitable SDK version for cross-compilation set ISYSROOT in "local_config.mk", e.g.
+##    ISYSROOT = -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+## for cross-compilation of ARM binaries on MacOS 10.15.
+CFLAGS = -Wall -O3 -arch x86_64 -march=core2 -mtune=corei7 -mmacosx-version-min=10.13 $(ISYSROOT)
+LDFLAGS = -arch x86_64 -mmacosx-version-min=10.13 $(ISYSROOT)
+
+DEPEND_CFLAGS = -Wall -O3
+
+## Header files and static libraries for all prerequisites must be marshalled in
+## assets/darwin-x86_64 and are linked from there
+ASSETS = $(TOP)/assets/darwin-x86_64
+
+## Must specify static libraries explicitly so linker won't prefer .dylib versions
+READLINE_DEFINES = -I$(ASSETS)/include
+READLINE_LIBS =  $(ASSETS)/lib/libreadline.a $(ASSETS)/lib/libhistory.a
+
+PCRE_DEFINES = -I$(ASSETS)/include
+PCRE_LIBS = $(DONT_SET_PCRE_LIBS)  # disable built-in auto-configuration
+
+## GLib must be linked dynamically against system-provided libraries and frameworks
+GLIB_DEFINES = -I$(ASSETS)/lib/glib-2.0/include -I$(ASSETS)/include/glib-2.0
+GLIB_LIBS = $(DONT_SET_GLIB_LIBS) # disable built-in auto-configuration
+
+## use runtime path to make libcl.dylib location-independent
+FINALLIBINSTDIR = @rpath
+
+## CWB binaries link to libcl.dylib via relative runpath, so release package is location-independent
+LIBCL_RPATH = -Xlinker -rpath -Xlinker @executable_path/../lib
+
+## CPU architecture and operating system used to name binary releases
+RELEASE_ARCH = x86_64
+RELEASE_OS = macos-10.13
+
+## extra static libraries needed for linking against the binary release
+LIBCL_EXTRA_LIBS = $(ASSETS)/lib/libglib-2.0.a $(ASSETS)/lib/libintl.a $(ASSETS)/lib/libpcre.a -liconv -framework CoreFoundation -framework CoreServices -framework Foundation  

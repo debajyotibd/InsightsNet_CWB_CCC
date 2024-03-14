@@ -1,0 +1,185 @@
+
+        IMS Open Corpus Workbench (CWB)
+        Release 3.5
+
+        Installation Guide -- Windows Supplement
+
+
+This file describes how to build and install the CWB from source code for
+Microsoft Windows.  You should first read the instructions in the main 
+INSTALL file, as the Windows procedures are in large part elaborations on
+the process for Unix.
+
+
+        GENERAL NOTES
+
+CWB is designed for Unix-like (i.e. POSIX-compatible) operating systems.
+Thus, on Windows, a Unix-like environment is needed to build CWB.
+There are three to choose from.
+
+ - Cygwin
+ - Windows Subystem for Linux (WSL)
+ - MSYS2 + Mingw-w64
+
+For our purposes, Cygwin counts as a Unix environment not a Windows 
+environment; so if you're building on Cygwin, the notes in this file do
+not apply. Follow the usual procedure for Unix.
+
+Similarly, WSL counts as Linux for our purposes. To build or install
+on WSL, proceed as usual for the Linux distribution that you have 
+installed from the Microsoft store. This file is not relevant to you.
+
+This leaves MSYS2 with Mingw-w64.
+
+ - MSYS2 is a minimal Unix-like environment for Windows. 
+ - Mingw-w64 provides a version of GCC that will build programs
+   for Windows, including related libraries.
+
+It's worth noting that both projects have been subject to forks/reboots
+in the past; the original MSYS and MinGW32 are still out there, and it
+is probably possible to use them to build CWB, but we have not tested
+and do not support this.
+
+When you build CWB within MSYS2, the resulting binaries can be used
+independently of MSYS2 - that is, they can be copied to other Windows
+machines. But you can also just use CWB within MSYS2. 
+
+It's also possible to build Windows binaries on a Unix system using MinGW.
+This process is called cross-compilation. Cross-compilation was formerly
+the primary method we used to create Windows releases. However, the 
+methods we used have been deprecated, and so the recommended approach is
+now to build on Windows itself, using MSYS2.
+
+All the notes below are directed at building CWB as a 64-bit application.
+Building it as 32-bit is very likely possible, but is not supported.
+
+The Windows builds are tested on Windows 10 (currently); they ought to
+work on Windows 11, but this awaits testing. They will probably work
+on Windows 7, 8 and 8.1, but again, we don't guarantee this and 
+can't support use of CWB on these older Windows versions. 
+
+
+        PREREQUISITES
+
+You need the same prerequisites for Windows as for Unix; see the 
+PREREQUISITES section of the main INSTALL file. 
+
+However, all these prerequisites can be installed using MSYS2 itself.
+
+The procedure for installing MSYS2 is explained on its website:
+
+   https://www.msys2.org/
+
+Instructions in brief (summarised from the page above):
+
+ - Download the installer (an .exe file) and run it.
+ - When installation is complete, run "MSYS2 MSYS"
+ - Use pacman to update all software:
+ 
+     pacman -Syu
+ 
+Now, install the following two groups of packages via pacman:
+ 
+     pacman -S <PACKAGE>
+
+ - GROUP 1: these are to be installed by the name below as-is.
+ 
+    - bison
+    - flex
+    - ncurses
+    - autoconf
+    - make
+    - zip                   (only needed to build release zips)
+    - groff                 (only needed to build release zips)
+    - subversion            (only needed to get CWB source from the repo)
+
+ - GROUP 2: these package names all require a prefix to specify the particular
+   version to be installed. The recommended prefix is:
+   
+      mingw-w64-ucrt-x86_64-
+   
+   and the packages are the following (i.e., mingw-w64-ucrt-x86_64-gcc
+   and so on):
+   
+    - gcc
+    - binutils
+    - pkgconf
+    - ncurses               (yes, this one is on both lists!)
+    - readline
+    - glib2
+    - pcre2                 (replacing "pcre" in earlier versions of CWB)
+    - ghostscript           (only needed to build release zips)
+
+Many of these packages have various dependencies, and pacman will ask you
+whether you want to install these additional packages. You should always 
+say yes. If a package you try to install is already present, you can 
+either reinstall, or do nothing; it should not make a difference.
+The precise list of requests will depend on the order in which you install
+the packages.
+
+
+        BUILDING AND INSTALLING
+
+With these packages installed, download the code either as a tarball 
+(which you should decompress) or using Subversion. Then start a 
+*different* MSYS2 window, by running "MSYS2 MinGW UCRT x64".
+(The different methods for running MSYS2 are all given separate
+app icons on the Start menu, and there are corresponding .exe files
+in the MSYS2 install location, usually C:\msys64.)
+
+Running MSYS2 in "MinGW UCRT x64" mode starts the system up in the best mode
+for compiling programs for Windows.
+
+There was formerly a CWB script to automate the Windows build:
+
+        ./install-scripts/build-win32
+        
+However, it no longer works; you must follow the steps below. 
+
+Proceed as follows:
+
+ - "cd" into the folder which contains the CWB code (however you got it)
+
+ - edit the config.mk file to select the right options. If you want to install
+   and use CWB *WITHIN* MSYS2, use these settings for PLATFORM and SITE:
+ 
+     PLATFORM=win64-msys2
+     SITE=standard
+
+ - on the other hand, if you want to create a release that can be installed
+   onto Windows entirely independently of MSYS2, use these settings:
+ 
+     PLATFORM=win64-msys2
+     SITE=windows-release
+
+(See INSTALL for a note on how to set SITE and PLATFORM via command line 
+variables rather than editing config.mk. You can use the config-basic script,
+as discussed there, but for Windows it only sets PLATFORM - it leaves SITE as 
+whatever is given in config.mk - normally, "standard").
+
+Now run the following commands:
+
+        make clean
+        make depend
+        make all
+
+If all goes well, you can then either "install" or "release" CWB. To install 
+CWB *WITHIN MSYS2*, having set SITE=standard at the previous stage, type:
+
+        make install
+
+The other option is to build a release - having set SITE=windows-release at
+the preceding stage. Type:
+
+        make release
+        
+This command creates a folder, with the release files for CWB, within the 
+build/ directory, plus a compressed version of the same. The contents of this 
+folder (or, equivalently, of a decompressed folder created by extracting the 
+release zip file) can be used directly in Windows, without use of MSYS2. This 
+means that you do not need to have MSYS2 to use the release on a different 
+computer to the one that you created the release on.
+
+From now on, follow the installation/use procedures for Windows as given 
+in the file instutils/INSTALL-release-win (which will be included, as 
+INSTALL.txt, in the root of the release directory).

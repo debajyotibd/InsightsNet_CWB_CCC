@@ -1,0 +1,13 @@
+cwb (3.5.0-1) unstable; urgency=medium
+
+  * Release of v3.5, intended to be the long-term stable version for CWB3.
+  * 
+
+ -- Timm Weber <timm.weber@fau.de>  Mon, 18 Jul 2022 03:53:59 +0000
+ 
+cwb (3.4.37-1) UNRELEASED; urgency=medium
+
+  * Initial release
+  * 
+
+ -- Timm Weber <timm.weber@fau.de>  Sat, 07 May 2022 14:32:37 +0000

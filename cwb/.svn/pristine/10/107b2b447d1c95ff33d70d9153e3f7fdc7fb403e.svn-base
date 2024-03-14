@@ -1,0 +1,7 @@
+This folder contains information for the construction of various packaged versions of the source/binary.
+
+cwb3.rb        -- a copy of the recipe for the homebrew package (for Mac OS). The code to actually create the recipe 
+                  (which involves doing a pull request to HomeBrew) does not live here.
+debian         -- folder hierarchy containing configuration (and directory structure) for the creation of the .deb version.
+cwb.spec       -- file containing the configuration for creation of the .rpm version.
+pkgbuild_*     -- folders with PKGBUILDs to build packages for Arch Linux

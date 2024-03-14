@@ -1,0 +1,3 @@
+fakeroot/usr/bin/* usr/bin
+fakeroot/usr/lib/libcl.so usr/lib
+fakeroot/usr/share/* usr/share

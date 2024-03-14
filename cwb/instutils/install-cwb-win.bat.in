@@ -1,0 +1,252 @@
+#!/bin/sh
+## 
+##  IMS Open Corpus Workbench (CWB)
+##  Copyright (C) 1993-2006 by IMS, University of Stuttgart
+##  Copyright (C) 2007-     by the respective contributers (see file AUTHORS)
+## 
+##  This program is free software; you can redistribute it and/or modify it
+##  under the terms of the GNU General Public License as published by the
+##  Free Software Foundation; either version 2, or (at your option) any later
+##  version.
+## 
+##  This program is distributed in the hope that it will be useful, but
+##  WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+##  Public License for more details (in the file "COPYING", or available via
+##  WWW at http://www.gnu.org/copyleft/gpl.html).
+## 
+
+# The script following the big line produces a .bat file that, in the absence of a .msi,
+# is our best bet for fulfilling the role of a Windows installer. 
+
+# It would be way better to use Powershell than batch. All Windows 10+ installations
+# ought definitely to have Powershell. Unfortunately I don't know any Powershell scripting. 
+
+#################################################################################
+
+
+# following two lines seem not be needed any more
+###PREFIX='${PREFIX}'
+###DEFAULT_REGISTRY_LOCFILE='${DEFAULT_REGISTRY_LOCFILE}'
+
+cat <<__END__
+@echo off
+
+rem 
+rem  IMS Open Corpus Workbench (CWB)
+rem  Copyright (C) 1993-2006 by IMS, University of Stuttgart
+rem  Copyright (C) 2007-     by the respective contributers (see file AUTHORS)
+rem 
+rem  This program is free software; you can redistribute it and/or modify it
+rem  under the terms of the GNU General Public License as published by the
+rem  Free Software Foundation; either version 2, or (at your option) any later
+rem  version.
+rem 
+rem  This program is distributed in the hope that it will be useful, but
+rem  WITHOUT ANY WARRANTY; without even the implied warranty of
+rem  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+rem  Public License for more details (in the file "COPYING", or available via
+rem  WWW at http://www.gnu.org/copyleft/gpl.html).
+rem
+
+
+rem ############### Things you can change to configure installation ###############
+
+rem ## Directory tree where the CWB will be installed (normally %ProgramFiles%\CWB in Windows)
+set PREFIX=${PREFIX}
+
+rem ## This determines whether a user needs admin rights to install CWB. 
+rem ## If you change the prefix to somewhere in your own User folder, you can turn this off. (0)
+set NEED_ADMIN=1
+
+
+rem ## This bit of code allows you to see where CWB will be installed, and abort if you don't like it.
+if not "%1"=="HAVE_ELEVATED_ALREADY" (
+    goto choose_install_dir
+)
+:bf_choose_install_dir
+
+rem ## You can change individual installation directories here ...
+
+rem # CQP and other executable programs ("binaries")
+set BINDIR=%PREFIX%\bin
+
+rem # C header files (CL library and CQi specification)
+set INCDIR=%PREFIX%\include
+
+rem # CL library (can be linked into C programs)
+set LIBDIR=%PREFIX%\lib
+
+rem # manual pages
+set MANDIR=%PREFIX%\man
+
+rem # default registry directory 
+set REGISTRY=%PREFIX%\Registry
+
+rem ############### DO NOT CHANGE ANYTHING BELOW THIS LINE ###############
+
+cd /D %~dp0
+
+rem # elevate privileges if need be
+if not "1"=="%NEED_ADMIN%" (
+    goto bf_elevate
+)
+
+>nul 2>&1 "%SYSTEMROOT%\SysWOW64\cacls.exe" "%SYSTEMROOT%\SysWOW64\config\system"
+if '%errorlevel%' NEQ '0' (
+    goto elevate
+)
+:bf_elevate
+
+rem We could use xcopy, but INSTALL is used for one file at a time...
+set INSTALL=copy
+
+set VERSION=${VERSION}
+
+set REALINCDIR=%INCDIR%\cwb
+set REALMANDIR=%MANDIR%
+
+set DEFAULT_REGISTRY_LOCFILE=${DEFAULT_REGISTRY_LOCFILE}
+
+
+rem       before copying bats, we need to create cwb-config.bat
+rem       there is probably a much better way to do it than with 9 different powershell calls. Would piping one replace to the next help?
+copy cwb-config-win.bat.in cwb-config.intermed > nul
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_VERSION_TGT' , '%VERSION%'  | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_PREFIX_TGT'  , '%PREFIX%'   | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_BINDIR_TGT'  , '%BINDIR%'   | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_LIBDIR_TGT'  , '%LIBDIR%'   | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_INCDIR_TGT'  , '%INCDIR%'   | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_MANDIR_TGT'  , '%MANDIR%'   | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_CFLAGS_TGT'  , '%CFLAGS%'   | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_LDFLAGS_TGT' , '%LDFLAGS%'  | Out-File -encoding ASCII cwb-config.intermed"
+powershell -Command "(gc cwb-config.intermed) -replace 'TGT_REGISTRY_TGT', '%REGISTRY%' | Out-File -encoding ASCII cwb-config.intermed"
+move cwb-config.intermed bin\cwb-config.bat > nul
+
+
+rem # install CQP and utilities 
+
+echo Installing CQP and utilities in %BINDIR%
+if not exist "%BINDIR%" (
+    mkdir "%BINDIR%"
+)
+for %%f in (bin\*.exe) do %INSTALL% "%%f" "%BINDIR%" > nul
+for %%f in (bin\*.bat) do %INSTALL% "%%f" "%BINDIR%" > nul
+echo ... done
+echo.
+
+
+rem # install CL library and header files
+
+echo Installing CL library and header files in %LIBDIR% and %INCDIR%
+if not exist "%LIBDIR%" (
+    mkdir "%LIBDIR%"
+)
+if not exist "%REALINCDIR%" (
+    mkdir "%REALINCDIR%"
+)
+
+rem libcl.a should, in theory, allow static linking if the linker used is mingw!
+%INSTALL% lib\libcl.a   "%LIBDIR%" > nul
+%INSTALL% lib\libcl.dll "%LIBDIR%" > nul
+%INSTALL% lib\libcl.lib "%LIBDIR%" > nul
+%INSTALL% include\cwb\cl.h  "%REALINCDIR%" > nul
+%INSTALL% include\cwb\cqi.h "%REALINCDIR%" > nul
+echo ... done
+echo.
+
+
+rem # and now for the PDF man files ...
+
+echo Installing manual pages in %MANDIR%
+if not exist "%REALMANDIR%" (
+    mkdir "%REALMANDIR%"
+)
+for %%f in (man\*.pdf) do %INSTALL% "%%f" "%REALMANDIR%" > nul
+echo ... done
+echo.
+
+
+rem # Create default system registry. 
+
+echo Creating registry folder: %REGISTRY%
+if not exist "%REGISTRY%" (
+    mkdir "%REGISTRY%"
+    echo "%REGISTRY%" > %BINDIR%\%DEFAULT_REGISTRY_LOCFILE%
+)
+
+
+rem # is the path already set?
+
+for /f "tokens=*" %%o in ('echo ;%PATH%; ^| find /C /I ";%BINDIR%;"') do set path_has_bindir=%%o
+if not "0"=="%path_has_bindir%" (
+    goto jump_add_to_path
+)
+
+rem The same check we previously used to find out if we need to elevate, can be used to determine which path to set: user or system.
+if "1"=="%NEED_ADMIN%" (
+        echo Adding %BINDIR% to the system PATH
+        setx /M PATH "%PATH%;%BINDIR%" > nul
+)  else (
+        echo Adding %BINDIR% to your PATH variable
+        setx PATH "%PATH%;%BINDIR%" > nul
+)
+echo ... done
+echo.
+:jump_add_to_path
+
+
+rem  # that's it!
+echo.
+echo Congratulations, the IMS Open Corpus Workbench v%VERSION% has been installed 
+echo successfully.
+echo.
+echo Your default corpus registry is 
+echo.
+echo      %REGISTRY%
+echo.
+echo To use a different registry directory, use the -r flag with all CWB programs.
+echo.
+set /P choice=Press [ENTER] to terminate this installer.
+goto :eof
+
+
+
+
+#################################################################################
+
+
+:choose_install_dir
+
+echo By default, CWB will be installed in 
+echo.
+echo      %PREFIX%
+echo.
+echo If you want to install it somewhere else, you should cancel this installation,
+echo edit the file install-cwb.bat, and change the line "set PREFIX=..."
+echo to contain the installation path of your choice.
+echo.
+echo Do you want to cancel installation?
+echo.
+set choice=
+set /p choice=[Type Y or y then [ENTER] to cancel, anything else to continue]
+if '%choice%'=='Y' goto :eof
+if '%choice%'=='y' goto :eof
+
+goto bf_choose_install_dir
+
+
+
+:elevate
+
+rem ## If the script is not running w/admin privileges 
+if not "%1"=="HAVE_ELEVATED_ALREADY" (
+    powershell -Command "Start-Process -WorkingDirectory "%cd%" -Verb RunAs -FilePath '%0' 'HAVE_ELEVATED_ALREADY'"
+    exit /b
+)
+
+goto bf_elevate
+
+__END__
+
+

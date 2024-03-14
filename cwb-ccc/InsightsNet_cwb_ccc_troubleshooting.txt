@@ -1,0 +1,37 @@
+########################### Welcome To "InsightsNet_cwb_ccc_troubleshooting.txt" ###########################
+
+
+If your "InsightNet_cwb_ccc_install.sh" did not work out, we have 2 other ways to install CWB-CCC, these steps you have to follow carefully and perform manually one by one.
+
+DO NOT TRY TO RUN THEM ALL TOGETHER,
+
+To run these commands, you have to be in the "/InsightsNet_cwb_ccc/cwb-ccc" directory at first, then you can run these commands.
+
+------------------------------------------
+Method 1
+
+python3 -m pip install pipenv
+pipenv install --dev
+pipenv run python3 setup.py bdist_wheel
+------------------------------------------
+
+To check cwb-ccc installation you can do `pip list` and will show a list of python packages that you have installed, and there you will see `cwb-ccc 0.11.8` or you can check by `import ccc`
+
+
+############## OR ##############
+
+
+------------------------------------------
+Method 2
+
+python3 -m pip install -r requirements.txt
+python3 -m cython -2 ccc/cl.pyx
+python3 setup.py build_ext --inplace
+------------------------------------------
+
+To check cwb-ccc installation you can do `pip list` and will show a list of python packages that you have installed, and there you will see `cwb-ccc 0.11.8` or you can check by `import ccc`
+
+
+
+
+# Try atfirst the "Method 1" and if it is not working for then try the "Method 2".
