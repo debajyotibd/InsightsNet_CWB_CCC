@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['rbrt_4848',['RBrT',['../regex2dfa_8c.html#a85e55e51529e83620c77e05854041f8caafb4e9258d4791bb89e6411061e4b96b',1,'regex2dfa.c']]],
+  ['rdiff_4849',['RDiff',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da66f051cd3a1483fff0371412e0f71a58',1,'ranges.h']]],
+  ['re_5fdisj_4850',['re_disj',['../eval_8h.html#ac9229123fa1af8bdfab732ba95159cb4ad46725551748edf2229e23e5af1c5b92',1,'eval.h']]],
+  ['re_5fod_5fconcat_4851',['re_od_concat',['../eval_8h.html#ac9229123fa1af8bdfab732ba95159cb4a3df7522f0d5d0b254618c32533b30315',1,'eval.h']]],
+  ['re_5foi_5fconcat_4852',['re_oi_concat',['../eval_8h.html#ac9229123fa1af8bdfab732ba95159cb4aad74a9cacff6794e2beec2ed19ad1d13',1,'eval.h']]],
+  ['re_5frepeat_4853',['re_repeat',['../eval_8h.html#ac9229123fa1af8bdfab732ba95159cb4ae5b12a85865ec606d8abc0e05c815c43',1,'eval.h']]],
+  ['reduce_4854',['Reduce',['../matchlist_8h.html#a4d573330ec7dc65b6a4bb9624374d417a09fc96752855892343a3ec4bb6291c80',1,'matchlist.h']]],
+  ['regexp_4855',['REGEXP',['../eval_8h.html#a273fc8eeda0bc00d22e79af1069e1a93a2485bd7fd93ee45c5ccae484bb512203',1,'eval.h']]],
+  ['region_4856',['Region',['../eval_8h.html#a1a4ed8ed90aaf701ce0f18e9baec85aea023bdd1bf971f4038cba7eb662ea8121',1,'eval.h']]],
+  ['rintersection_4857',['RIntersection',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da5b7703a91916d617d550275d7bb787ca',1,'ranges.h']]],
+  ['rleftmaximalmatches_4858',['RLeftMaximalMatches',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da24cbbe5117e525baafa58bd96d118e3f',1,'ranges.h']]],
+  ['rmaximalmatches_4859',['RMaximalMatches',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da7a0e334e9c8588b08340a038481e2bba',1,'ranges.h']]],
+  ['rminimalmatches_4860',['RMinimalMatches',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da80eabac7488b2c8e6bf08b1253872464',1,'ranges.h']]],
+  ['rnonoverlapping_4861',['RNonOverlapping',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da9fa0212efaa725509202eb71dcfdca42',1,'ranges.h']]],
+  ['rpart_4862',['RParT',['../regex2dfa_8c.html#a85e55e51529e83620c77e05854041f8ca20f835ff5843eaf67b995455680a22aa',1,'regex2dfa.c']]],
+  ['rreduce_4863',['RReduce',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da97fb52774348c9d10bc53cefeded5626',1,'ranges.h']]],
+  ['rule_4864',['RULE',['../regex2dfa_8c.html#acaf25879c0ef2805e354bdfe64a33f53aeaa16db28c9626eefe199d718901e291',1,'regex2dfa.c']]],
+  ['runion_4865',['RUnion',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4da996940fb154ea3bdae92aaf280b5fc3c',1,'ranges.h']]],
+  ['runiq_4866',['RUniq',['../ranges_8h.html#aeb5ec9cdebf03b5a87f9c2e19012cf4dadfdac0d25fa66d2d846ebe518e52f829',1,'ranges.h']]]
+];

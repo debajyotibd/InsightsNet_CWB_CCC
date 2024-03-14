@@ -1,0 +1,232 @@
+For a long time, CQP and the corpus library have been using a regular expression optimizer, which speeds up matching of simple regular expressions (e.g. prefix/suffix/infix searches).  This was essential for a satisfactory user experience especially while CWB was still relying on POSIX regular expression libraries that are very inefficent on some platforms (so that even a simple query such as [lemma = ".+ization"] would be painfully slow on a large corpus).
+
+The regular expression optimizer works in the following way:
+
+ - It attempts to analyse the complete regular expression. If it encounters any unsupported or unknown syntactic elements, no optimization is attempted.
+ - The optimizer then tries to find a substring ("grain") that has to be present in any match of the regexp. To broaden its applicability, it will also accept a small set of alternative grains, e.g. in the query "(up|down)grad.+". Additionally, it will detect if the grain is anchored at the start or end of the string.
+ - If a grain (set) has been found, candidate strings are pre-filtered using an efficient Boyer-Moore search. A regexp match is attempted only if a candidate contains at least one of the grains.
+ - If %c or %d modifiers are used, both the regexp itself and each candidate string are case/diacritic-folded before Boyer-Moore search and regexp matching. This corresponds to the implementation of %c/%d flags at the time when the optimizer was written and works well (and quite efficiently) for Latin1 encoding (the only encoding supported at that time).
+
+Later on, changes made in CWB 3.4.x affected both the efficiency and the validity of the regexp optimizer.  Key changes were the support for different encodings including UTF-8 and the switch to the PCRE regexp library.
+
+ - PCRE syntax includes many case-sensitive escape sequences (\s vs. \S, \p{...} vs. \P{...}, etc.), so case-folding the regular expression would silently change its semantics.
+ - In some corner cases, case-insensitive matching of UTF-8 regular expressions cannot be simulated by case-folding, e.g. /ß/ matching "SS" but not "ss".
+ - The implementation of the optimizer was assuming that characters are single bytes, so it would mis-analyze UTF-8 regexp such as "hä+" (repeating only the last byte of "ä").
+ - PCRE turned out to be much faster than most POSIX regular expression libraries, especially with JIT enabled. This made the optimizer useful in fewer cases. In particular, case-folding of all candidate strings alone turned out to be more expensive than case-insensitive PCRE regexp matching.
+
+For these reasons, CWB 3.4.10 introduced a revised implementation of the regular expression optimizer.  In addition to full support for UTF-8 strings and PCRE syntax, it re-assessed the benefit of applying the optimization in the first place.  To this end, some (very informal and unsystematic) benchmark experiments were carreid out as detailed below.
+
+Based on the benchmark results and the issues with the case-folding approach to case-insensitive matching, the new implementation works as follows:
+
+ - The regexp optimizer is applied if there are no %c/%d flags.
+ - Case-insensitive (%c) matching uses PCRE_CASELESS rather than case-folding the regexp and all candidate strings. The optimizer is disabled because it would necessitate a case-folding step that's more expensive than the PCRE matching (unless the PCRE library doesn't support JIT compilation). It is always disabled in UTF-8 mode because the Unicode case-folding algorithm is very expensive and because of the corner cases listed above.
+ - Diacritic-insensitive matching (%d) still uses the pre-processing approach, by diacritic-folding both the regexp and each candidate string. The regexp optimizer incurs little extra cost in this setting, so it can be applied.
+ - With both flags (%cd), diacritic-folding is combined with PCRE_CASELESS, and the regexp optimizer is usually disabled (based on same criteria and rationale as for %c).
+  
+For safety reasons and to facilitate comparative testing, the new implementation was no longer enabled by default and has to be activated by setting cl_optimize = 1 (or "set Optimize on;" in CQP).  This is still true as of CWB 3.4.33.
+
+The regular expression optimizer will be re-enabled by default for the 3.5 LTS release, but thorough testing (via unit tests in the CWB::CL Perl module) and updated benchmarks should be done beforehand.
+
+
+===============================================================
+
+Some regular expression benchmarks carried out with CWB 3.4.9/3.4.10 during reimplementation of case/accent-insensitive matching and the regexp optimizer.
+
+All timing were obtained on MacBook Pro, 2.6 GHz, Core i7, 16 MiB RAM, OS X 10.10.5 with warm cache, so hard disk performance should play no role.
+
+Unmarked figures are based on the traditional implementation in CWB 3.4.9, which produced incorrect results in certain edge cases. The new implementation in CWB 3.4.10 uses PCRE_CASELESS for case-insensitive (%c) matching and preprocesses regexp + string only for accent-folding (%d).
+
+
+The main observations are as follows:
+
+1) PCRE + JIT is very fast, and we only get a noticeable benefit from the optimizer for simple wildcard searches. These feel noticeably smoother with the optimizer (e.g. response time 0.3s instead of 0.7s). This suggests that it's probably not worth trying to extend the optimizer to complicated regexen.
+
+2) Without JIT, even PCRE can be a lot slower (though not as horribly slow as the old POSIX implementations that prompted me to write the optimizer in the first place).  In the worst case (see infix queries below), we have a difference between 8.4s (PCRE) and 0.4s (optimizer), which would definitely be worth the effort (PCRE + JIT takes 1.3s, which seems acceptable). If we have to expect that some platforms don't support PCRE-JIT, we have a good reason to keep the optimizer alive.
+
+3) The biggest performance problem are %c and %d flags in UTF-8. Testing with FRWAC (one of the few corpora I have indexed in UTF-8), we get horrible response times of 8–10s regardless of whether JIT or the optimizer are used.  Do you think there's any way of speeding this up? It may be a better issue to invest effort in than he optimizer.
+
+Conclusion: The optimizer is now always disabled with %c if PCRE JIT is available or if the character set is UTF-8.
+
+- The JIT criterion is fairly clear: there are only a few edge cases where the optimizer would be faster, and the difference is small then (whereas it can be _a lot_ slower than matching directly with PCRE JIT). It's less clear what to do without JIT:
+
+- For a Latin1 corpus without JIT, the optimizer was faster in all my tests, so this decision also seems to be clear.
+
+- For a UTF-8 corpus without JIT, the optimizer is usually slower, and sometimes quite substantially so. However, it would still speed up the hard-core infix search ".+(hyper|super|ultra).+" %c by about 50%. Since simpler searches might become slower, I think it makes sense to disable the optimizer here, too.
+
+
+===============================================================
+
+Results on FRWAC_UTF8 with lots of accents in UTF-8
+(word form lexicon with 5.9 million entries, 75 MiB on disk):
+
+---------------------------------------------
+"Besançon" %c
+	PCRE:		8.01s
+	PCRE JIT:	7.79s
+	optimizer:	7.48s
+
+Without the unnecessary NFC step in cl_string_canonical():
+	PCRE JIT:	3.4s
+	optimizer:	3.1s
+
+New implementation:
+	PCRE:		0.58s
+	PCRE JIT:	0.28s	\o/
+	optimizer:	3.03s
+
+---------------------------------------------
+"Besançon" %d
+	PCRE:		8.88s
+	PCRE JIT:	8.48s
+	optimizer:	8.33s
+
+New:
+	PCRE:		8.89s
+	PCRE JIT:	8.48s
+	optimizer:	8.33s
+
+---------------------------------------------
+"Besançon" %cd
+	PCRE:		11.4s
+	PCRE JIT:	11.1s
+	optimizer:	10.8s
+
+New:
+	PCRE:		8.73s
+	PCRE JIT:	8.64s
+	optimizer:	11.3s	:-((
+
+---------------------------------------------
+".+-.idelite"
+	PCRE:		1.20s
+	PCRE JIT:	0.38s
+	optimizer:	0.13s
+
+Unchanged, of course.
+
+---------------------------------------------
+".+-.idelite"%d
+	PCRE:		9.43s
+	PCRE JIT:	8.94s
+	optimizer:	8.41s
+
+New:
+	PCRE:		9.45s
+	PCRE JIT:	8.69s
+	optimizer:	8.23s
+
+---------------------------------------------
+And new for
+".+-.idelite"%c
+	PCRE:		1.25s
+	PCRE JIT:	0.41s
+	optimizer:	3.09s	:-((
+
+---------------------------------------------
+Also new for a hard-core infix search:
+".+(hyper|super|ultra).+"
+	PCRE:		4.43s
+	PCRE JIT:	0.69s
+	optimized:	0.23s
+
+".+(hyper|super|ultra).+" %c
+	PCRE:		6.12s
+	PCRE JIT:	0.76s
+	optimized:	3.17s
+
+".+(hyper|super|ultra).+" %cd	
+	PCRE:		14.4s
+	PCRE JIT:	8.9s
+	optimized:	11.3s
+
+===============================================================
+
+Results on UKWAC with Latin1 encoding and few accented letters
+(word form lexicon has 12 million entries, 154 MiB on disk):
+
+---------------------------------------------
+".+minables"
+	PCRE:		1.95s
+	PCRE JIT:	0.73s
+	optimizer:	0.26s
+
+Unchanged, as expected.
+
+---------------------------------------------
+".+minables" %cd
+	PCRE:		2.64s
+	PCRE JIT:	1.36s
+	optimizer:	0.83s
+
+New:
+	PCRE:		2.89s
+	PCRE JIT:	1.38s
+	optimizer:	1.31s	??? no idea why this has become slower (perhaps the two-stage normalization mapping?)
+
+---------------------------------------------
+"und.+ably"
+	PCRE:		0.84s
+	PCRE JIT:	0.68s
+	optimizer:	0.24s	
+
+Unchanged (except for small fluctuations).	
+
+---------------------------------------------
+"und.+ably" %c
+	PCRE:		1.45s
+	PCRE JIT:	1.27s
+	optimizer:	0.84s
+
+New:
+	PCRE:		0.90s
+	PCRE JIT:	0.72s
+	optimizer:	0.81s
+
+---------------------------------------------
+"und.+ably" %cd
+	PCRE:		1.44s
+	PCRE JIT:	1.30s
+	optimizer:	0.83s
+
+New:
+	optimizer:	1.31s	(very probably the overhead of two-step normalization)
+
+---------------------------------------------
+".+(hyper|super|ultra).+"
+	PCRE:		8.40s
+	PCRE JIT:	1.28s
+	optimizer:	0.42s
+
+Unchanged.
+
+---------------------------------------------
+".+(hyper|super|ultra).+" %c
+	PCRE:		9.09s
+	PCRE JIT:	1.83s
+	optimizer:	0.98s
+
+New:
+	PCRE:		8.42s
+	PCRE JIT:	1.30s	(may be incomplete if there's a "süperband" in the corpus, at least until we implement our own character tables for case-flipping)
+	optimizer:	0.98s
+
+---------------------------------------------
+"neighbou?red"
+	PCRE:		0.85s
+	PCRE JIT:	0.63s
+	optimizer:	0.24s
+
+Unchanged.
+
+---------------------------------------------
+"neighbou?red"%c
+	PCRE:		1.47s
+	PCRE JIT:	1.25s
+	optimizer:	0.78s
+
+New:
+	PCRE:		0.89s
+	PCRE JIT:	0.65s
+	optimizer:	0.78s
+
+===============================================================

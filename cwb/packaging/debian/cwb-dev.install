@@ -1,0 +1,2 @@
+fakeroot/usr/include/* usr/include
+fakeroot/usr/lib/libcl.a usr/lib

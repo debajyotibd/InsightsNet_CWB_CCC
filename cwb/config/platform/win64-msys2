@@ -1,0 +1,68 @@
+##   -*-Makefile-*-
+## 
+##  IMS Open Corpus Workbench (CWB)
+##  Copyright (C) 1993-2006 by IMS, University of Stuttgart
+##  Copyright (C) 2007-     by the respective contributers (see file AUTHORS)
+## 
+##  This program is free software; you can redistribute it and/or modify it
+##  under the terms of the GNU General Public License as published by the
+##  Free Software Foundation; either version 2, or (at your option) any later
+##  version.
+## 
+##  This program is distributed in the hope that it will be useful, but
+##  WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+##  Public License for more details (in the file "COPYING", or available via
+##  WWW at http://www.gnu.org/copyleft/gpl.html).
+
+##
+##  PLATFORM CONFIGURATION FILE: Building on Windows 10 (or 11, untestedly) using MSYS2 + MINGW-W64 + UCRT
+##
+
+## Inherits from generic Unix configuration (because MSYS2 gives us a Unix-y environment)
+include $(TOP)/config/platform/unix
+
+## if a "unix-to-dos" conversion program is specified, it will be used when creating
+## windows releases (for text files containing instructions e.g. README.txt) to get CRLF line-ends.
+# UNIX2DOS = unix2dos
+## While unix2dos exists on many platforms, it may well not be installed by default.
+
+## Special variable for interacting with MSYS2/UCRT package management
+# MS2PREF = mingw-w64-ucrt-x86_64
+## not used yet, but may well be needed if we want to invoke pacman
+
+# TODO these prob need setting, no?
+## compiler flags for linking against binary releases (defaults are inserted automatically)
+#RELEASE_CFLAGS = 
+#RELEASE_LDFLAGS = 
+
+## CPU architecture and operating system used to name binary releases
+## ... note that the build system **will not** produce sensible defaults here,
+## due to how uname works under MSYS2.
+RELEASE_ARCH = x86_64
+RELEASE_OS = msys2
+
+## this variable is checked with "ifdefs" in makefiles that need to do something different
+## when using MSYS2 + MINGW-W64
+WINDOWS=1
+
+## On MSYS2, we have to ask about ncursesw, for some reason
+TERMCAP_LIBS := $(shell pkg-config --libs ncursesw)
+## for release, this gets overridden with the static version. See ../site/windows-release.
+
+## C flags: those needed specifically for Windows build.
+CFLAGS = -O2 -Wall -DEMULATE_SETENV
+## _WIN64 gets automatically declared within MSYS/MINGW-W64, so we don't need another constant for Windows itself.
+## MinGW doesn't have setenv() for manipulating environment variables, so we need to emulate it with putenv();
+## this is controlled by EMULATE_SETENV, created for Solaris but also useful for Win64.
+
+## Linker flags : ws2_w32 is the winsock2 library (also contains 64 bit version apparently)
+LDFLAGS = -lm -lws2_32
+
+## Windows binaries must end in .EXE
+EXEC_SUFFIX = .exe
+
+## These are suggested values for internal installation with MSYS. 
+## Different values are set in windows-release for the actual binary release bundle.
+LIBCL_TYPE = static
+LIBCL_SHAREDLIB = libcl.dll libcl.dll.a

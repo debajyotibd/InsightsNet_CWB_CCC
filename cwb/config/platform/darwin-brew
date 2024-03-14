@@ -1,0 +1,53 @@
+##   -*-Makefile-*-
+## 
+##  IMS Open Corpus Workbench (CWB)
+##  Copyright (C) 1993-2006 by IMS, University of Stuttgart
+##  Copyright (C) 2007-     by the respective contributers (see file AUTHORS)
+## 
+##  This program is free software; you can redistribute it and/or modify it
+##  under the terms of the GNU General Public License as published by the
+##  Free Software Foundation; either version 2, or (at your option) any later
+##  version.
+## 
+##  This program is distributed in the hope that it will be useful, but
+##  WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+##  Public License for more details (in the file "COPYING", or available via
+##  WWW at http://www.gnu.org/copyleft/gpl.html).
+
+##
+##  PLATFORM CONFIGURATION FILE:
+##    Natively tuned Intel 64-bit binaries for Mac OS X 10.10 (Yosemite) and newer,
+##    with prerequisite libraries provided by HomeBrew package manager
+##
+
+## Inherits from basic Darwin configuration
+include $(TOP)/config/platform/darwin
+
+## Make sure that Apple's gcc is used (not e.g. a fink-installed version)
+CC = /usr/bin/gcc
+
+## Tune for CPU of the build machine, compiling only 64-bit code
+CFLAGS = -Wall -O3 -arch x86_64 -march=native -mtune=native
+
+DEPEND_CFLAGS = -Wall -O3
+
+## We can use pkg-config to determine suitable compiler and linker flags for
+## Glib and PCRE. They point to specific versions of the libraries in the Cellar,
+## but their install names have the stable opt/... path, so upgrades don't break.
+PCRE_DEFINES := $(shell pkg-config --cflags libpcre2-8)
+PCRE_LIBS = $(shell pkg-config --libs libpcre2-8)
+
+GLIB_DEFINES = $(shell pkg-config --cflags glib-2.0)
+GLIB_LIBS = $(shell pkg-config --libs glib-2.0)
+
+## HomeBrew refuses to link Readline on MacOS, so it's not visible to pkg-config
+READLINE_DEFINES = -I/usr/local/opt/readline/include
+READLINE_LIBS = -L/usr/local/opt/readline/lib -lreadline -lhistory
+
+## CPU architecture and operating system used to name binary releases
+RELEASE_ARCH = x86_64
+
+## Optionally use newer Bison from HomeBrew (MacOS ships bison 2.3, which is > 15 years old)
+# YACC = /usr/local/opt/bison@2.7/bin/bison -d -t
+# YACC = /usr/local/opt/bison/bin/bison -d -t
