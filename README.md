@@ -61,6 +61,11 @@ After running the script it will ask you to provide " Enter the path of Insights
 If everything works fine, your CWB will install sussessfully and you will you see an installation susscessful message.
 
 To run CWB the command is `cqp -eC` and press enter.
+
+To pass the corpus registry path `set Registry "YOUR_CORPUS_REGISTRY_PATH"`.
+To see all the registered corpus in the registry path `show corpora`.
+To select a corpus `CORPUS_NAME` (all capital letters).
+
 To exit CWB the command is `exit` or `exit()`.
 To check the version of CWB, the command is `cqp --v`.
 
